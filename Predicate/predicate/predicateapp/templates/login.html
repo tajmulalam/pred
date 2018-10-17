@@ -25,7 +25,8 @@
                 <div id="errorMsg"></div>
                 <div class="card-body px-lg-5 py-lg-5">
                     <div class="text-center text-muted mb-4">
-                        <small>Sign in with credentials</small><br>
+                        <small>Sign in with credentials</small>
+                        <br>
                         <img src="/static/assets/img/loading.gif" width="80" style="display: none;" id="loading">
                     </div>
                     <form role="form">
@@ -34,7 +35,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="ni ni-circle-08"></i></span>
                                 </div>
-                                <input class="form-control" id="username" placeholder="Username" name="username" type="text">
+                                <input class="form-control" id="username" placeholder="Username" name="username"
+                                       type="text">
                             </div>
                         </div>
                         <div class="form-group">
@@ -42,7 +44,8 @@
                                 <div class="input-group-prepend">
                                     <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                                 </div>
-                                <input class="form-control" id="password" placeholder="Password" type="password" name="password">
+                                <input class="form-control" id="password" placeholder="Password" type="password"
+                                       name="password">
                             </div>
                         </div>
 
@@ -120,24 +123,18 @@
                         },
                         success: function(data){
                             console.log(data);
-                            if (data=='200') {
+                            if (data.status=='200') {
                                 //window.location.replace.href='/dtmdata';
                                 location.replace('/dashboard');
                             }else{
                                 /*var alertHtml="<div class='alert alert-danger'><button type='button' aria-hidden='true' class='close' data-dismiss='alert'><i class='nc-icon nc-simple-remove'></i></button><span><b>Incorrect credentials! Try again...</b></span></div>";
                                 $("#errorMsg").html(alertHtml);*/ 
-                                if (data=='500') {
+                                if (data.status=='500') {
                                     showNotification("Incorrect credentials! Try again...");
 
-                                }else if (data=='600') {
-                                    showNotification("License Expired.Please contact with your software provider");
-
-                                }else if(data=='300'){
-                                    showNotification("No License Found For this Account.Please contact with your software provider");
-
-                                }else if(data=='400'){
-                                    showNotification("This Customer account is temporary inactive.Please contact with your software provider");
-                                }else if(data=='250'){
+                                }else if(data.status=='201'){
+                                    location.replace('/challengelist');
+                                }else if(data.status=='250'){
                                     showNotification("This Account user is temporary inactive.Please contact with your Power User");
                                 }else{
                                     showNotification("Incorrect credentials! Try again...");
@@ -154,5 +151,7 @@
             });
         });
                     
-    </script>
+
+
+</script>
 {%endblock%}

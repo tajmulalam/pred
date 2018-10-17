@@ -1,0 +1,179 @@
+{% extends "base_home.html" %}
+
+{% block content %}
+<div class="container">
+    <div class="header-body text-center mb-7">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-6">
+                <h1 class="text-white">Welcome!</h1>
+                <p class="text-lead text-light">Use the form bellow to create new account.</p>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="separator separator-bottom separator-skew zindex-100">
+    <svg x="0" y="0" viewBox="0 0 2560 100" preserveAspectRatio="none" version="1.1"
+         xmlns="http://www.w3.org/2000/svg">
+        <polygon class="fill-default" points="2560 0 2560 100 0 100"></polygon>
+    </svg>
+</div>
+</div>
+<div class="container mt--9 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7 col-md-7">
+            <div class="card bg-secondary shadow border-0">
+                <div id="errorMsg"></div>
+                <div class="card-body px-lg-5 py-lg-5">
+                    <div class="text-center text-muted mb-4">
+                        <small>Sign up with necessary information</small>
+                        <br>
+                        <img src="/static/assets/img/loading.gif" width="80" style="display: none;" id="loading">
+                    </div>
+                    <form role="form">
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-alternative">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                </div>
+                                <input class="form-control" id="firstName" placeholder="First Name" name="firstName"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-alternative">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="ni ni-single-02"></i></span>
+                                </div>
+                                <input class="form-control" id="lastName" placeholder="Last Name" name="lastName"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-alternative">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="ni ni-email-83"></i></span>
+                                </div>
+                                <input class="form-control" id="email" placeholder="Email" name="email"
+                                       type="email">
+                            </div>
+                        </div>
+                        <div class="form-group mb-3">
+                            <div class="input-group input-group-alternative">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="ni ni-circle-08"></i></span>
+                                </div>
+                                <input class="form-control" id="username" placeholder="Username" name="username"
+                                       type="text">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-alternative">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                                </div>
+                                <input class="form-control" id="password" placeholder="Password" type="password"
+                                       name="password">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="input-group input-group-alternative">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
+                                </div>
+                                <input class="form-control" id="cfpassword" placeholder="Confirm Password"
+                                       type="password"
+                                       name="password">
+                            </div>
+                        </div>
+
+                        <div class="text-center">
+                            <button type="button" class="btn btn-primary my-4" id="btnSubmit">Sign in</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js%}
+<script type="text/javascript">
+        $(document).ready(function () {
+            function validateField(username,password){
+                var userNameOK=false;
+                var passwordOK=false;
+                if (username.length>0) {
+                    userNameOK=true;
+                }else{
+                    showNotification("Username is required")
+                }
+                if (password.length>0) {
+                    passwordOK=true;
+                }else{
+                    showNotification("Password is required")
+
+                }
+                if (userNameOK && passwordOK) {
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+            function showNotification(message){
+                var alertHtml="<div class='alert alert-danger'><button type='button' aria-hidden='true' class='close' data-dismiss='alert'><i class='ni ni-fat-remove'></i></button><span><b>"+message+"</b></span></div>";
+                $("#errorMsg").html(alertHtml); 
+            }
+            $("#btnSubmit").click(function(event){
+                event.preventDefault();
+                var firstName=$("#firstName").val();
+                var lastName=$("#lastName").val();
+                var email=$("#email").val();
+                var username=$("#username").val();
+                var password=$("#password").val();
+                var cfpassword=$("#cfpassword").val();
+                   $("#loading").show(); //show loading
+                   //$("#avatar").hide(); //show loading
+                   $('#btnSubmit').prop('disabled', true);
+                   $.ajax({
+                       url : "/register",
+                       type: "POST",
+                       data: JSON.stringify(
+                           {firstName:firstName,lastName:lastName,email:email,username: username, password:password,cfpassword:cfpassword}
+                       ),
+                       contentType: "application/json; charset=utf-8",
+                       dataType   : "json",
+                       error:function(error){
+                            $("#loading").hide(); //show loading
+                            //$("#avatar").show(); //show loading
+                            $('#btnSubmit').prop('disabled', false);
+
+                       },
+                       success: function(data){
+                           console.log(data);
+                           if (data.status=='200') {
+                               showNotification(data.msg);
+                               //window.location.replace.href='/dtmdata';
+                               setTimeout(function(){location.replace('/login');},3000);
+                           }else{
+                               showNotification(data.msg);
+                           }
+
+                           $("#loading").hide(); //show loading
+                           //$("#avatar").show(); //show loading
+                           $('#btnSubmit').prop('disabled', false);
+
+                       }
+                   });
+            });
+        });
+                    
+
+
+
+
+
+
+
+</script>
+{%endblock%}
