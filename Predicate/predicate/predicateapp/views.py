@@ -8,10 +8,18 @@ from django.http import JsonResponse
 from .models import User
 from .models import Challenge
 from .models import Prediction
+from datetime import *
 
 
 def index(request):
-    return render_to_response('index.html')
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('index.html')
+    else:
+        if user.userType == "General":
+            return render_to_response('dashboard.html')
+        else:
+            return render_to_response('challengelist.html')
 
 
 @csrf_exempt
@@ -82,7 +90,7 @@ def dashboard(request):
     else:
         challenge = Challenge.objects.all()
         prediction = Prediction.objects.all().filter(submittedBy_id=user.id)
-        return render_to_response('dashboard.html', {'user': user,'challenge':challenge,'prediction':prediction})
+        return render_to_response('dashboard.html', {'user': user, 'challenge': challenge, 'prediction': prediction})
 
 
 def challengelist(request):
@@ -90,16 +98,48 @@ def challengelist(request):
     if user is None:
         return render_to_response('login.html')
     else:
-        challenge = Challenge.objects.all()
-        return render_to_response('challengelist.html', {'challenge': challenge})
+        challenge = Challenge.objects.all().order_by('-id')
+        return render_to_response('challengelist.html', {'user': user, 'challenge': challenge})
 
-def myprediction(request,prediction_id):
+
+@csrf_exempt
+def addnewchallenge(request):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            return render_to_response('addnewchallenge.html', {'user': user})
+        elif request.method == 'POST':
+            data = json.loads(request.body)
+            print(data)
+            result = validateChallenge(data)
+            if result[1]:
+                challenge = Challenge(challengeTitle=data['challengeTitle'],
+                                      challengeDescription=data['challengeDescription'],
+                                      challengeDeadline=data['deadline'])
+                challenge.save()
+                if challenge.pk:
+                    return HttpResponse(json.dumps({"msg": result[0], "status": 200}),
+                                        content_type='application/json')
+                else:
+                    return HttpResponse(json.dumps({"msg": 'Error while processing', "status": 500}),
+                                        content_type='application/json')
+            else:
+                return HttpResponse(json.dumps({"msg": result[0], "status": 500}),
+                                    content_type='application/json')
+        else:
+            return render_to_response('login.html')
+
+
+def myprediction(request, prediction_id):
     user = checkUserAliveInSession(request)
     if user is None:
         return render_to_response('login.html')
     else:
         prediction = Prediction.objects.all().filter(id=prediction_id)
-        return render_to_response('prediction.html', {'user': user,'prediction': prediction})
+        return render_to_response('prediction.html', {'user': user, 'prediction': prediction})
+
 
 """This is the common method for checking user session"""
 
@@ -129,19 +169,19 @@ def validateFields(data):
 
     if isBlank(data['firstName']):
         isFirstNameOK = False
-        errorMsg += "First name is required" + "\n"
+        errorMsg += "First name is required" + "</br>"
     else:
         isFirstNameOK = True
 
     if isBlank(data['lastName']):
         isLastNameOK = False
-        errorMsg += "Last name is required" + "\n"
+        errorMsg += "Last name is required" + "</br>"
     else:
         isLastNameOK = True
 
     if isBlank(data['email']):
         isEmailOK = False
-        errorMsg += "Email is required" + "\n"
+        errorMsg += "Email is required" + "</br>"
     else:
         try:
             user = User.objects.get(email=data['email'])
@@ -150,12 +190,12 @@ def validateFields(data):
         if user is None:
             isEmailOK = True
         else:
-            errorMsg += "Email already exists" + "\n"
+            errorMsg += "Email already exists" + "</br>"
             isEmailOK = False
 
     if isBlank(data['username']):
         isUsernameOK = False
-        errorMsg += "Username is required" + "\n"
+        errorMsg += "Username is required" + "</br>"
     else:
         try:
             user = User.objects.get(username=data['username'])
@@ -164,24 +204,60 @@ def validateFields(data):
         if user is None:
             isUsernameOK = True
         else:
-            errorMsg += "Username already exists" + "\n"
+            errorMsg += "Username already exists" + "</br>"
             isUsernameOK = False
 
     if isBlank(data['password']):
         isPasswordOK = False
-        errorMsg += "Password is required" + "\n"
+        errorMsg += "Password is required" + "</br>"
     else:
         if isBlank(data['cfpassword']):
             isPasswordOK = False
-            errorMsg += "Confirm password is required " + "\n"
+            errorMsg += "Confirm password is required " + "</br>"
         else:
             if data['password'] == data['cfpassword']:
                 isPasswordOK = True
             else:
                 isPasswordOK = False
-                errorMsg += "Password Not matched" + "\n"
+                errorMsg += "Password Not matched" + "</br>"
     if isFirstNameOK and isLastNameOK and isEmailOK and isUsernameOK and isPasswordOK:
         result.append("Registration Successful redirecting to login.")
+        result.append(True)
+        return result
+    else:
+        result.append(errorMsg)
+        result.append(False)
+        print(errorMsg)
+        return result
+
+
+def validateChallenge(data):
+    errorMsg = ""
+    result = []
+    isTitleOK = False
+    isDescription = False
+    isDateOK = False
+
+    if isBlank(data['challengeTitle']):
+        isTitleOK = False
+        errorMsg += "Challenge title is required" + "</br>"
+    else:
+        isTitleOK = True
+
+    if isBlank(data['challengeDescription']):
+        isDescription = False
+        errorMsg += "Challenge description is required" + "</br>"
+    else:
+        isDescription = True
+
+    if isBlank(data['deadline']):
+        isDateOK = False
+        errorMsg += "Deadline is required" + "</br>"
+    else:
+        isDateOK = True
+
+    if isTitleOK and isDescription and isDateOK:
+        result.append("Challenge Created and publish Successful")
         result.append(True)
         return result
     else:

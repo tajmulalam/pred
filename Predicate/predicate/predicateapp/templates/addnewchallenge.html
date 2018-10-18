@@ -1,0 +1,115 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<!-- Page content -->
+<div class="container-fluid mt--7">
+    <div class="row">
+        <div class="col-xl-12 mb-5 mb-xl-0">
+            <div class="card">
+                <form role="form ">
+                    <div id="errorMsg"></div>
+                    <div class="row ">
+                        <label for="header" class="col-md-1 mt-2 ml-2">
+                            <a href="/challengelist"
+                               class="btn btn-fill btn-sm btn-danger"> <
+                                Back</a>
+                        </label>
+                        <div class="col-md-8 mt-4">
+                            <div class="form-group">
+                                <h3 class="mt-2 ml-2" id="header">Add new challenge</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="challengeTitle" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="challengeTitle"
+                                       placeholder="Enter title">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="challengeDescription" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <textarea class="form-control " id="challengeDescription" rows="8"
+                                          placeholder="Write challenge description here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="deadline" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="text" class="form-control datepicker" id="deadline"
+                                       placeholder="Enter deadline">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="btnSubmit" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <button type="button" class="btn btn-primary" id="btnSubmit">Save & Publish</button>
+                                <img src="/static/assets/img/loading.gif" width="80" style="display: none;"
+                                     id="loading">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block js %}
+<script type="text/javascript">
+   $(document).ready(function () {
+      function showNotification(message){
+          var alertHtml="<div class='alert alert-danger'><button type='button' aria-hidden='true' class='close' data-dismiss='alert'><i class='ni ni-fat-remove'></i></button><span><b>"+message+"</b></span></div>";
+          $("#errorMsg").html(alertHtml);
+      }
+      $("#btnSubmit").click(function(event){
+          event.preventDefault();
+          var challengeTitle=$("#challengeTitle").val();
+          var challengeDescription=$("#challengeDescription").val();
+          var deadline=$("#deadline").val();
+          $("#loading").show(); //show loading
+          //$("#avatar").hide(); //show loading
+          $('#btnSubmit').prop('disabled', true);
+          $.ajax({
+              url : "/addnewchallenge",
+              type: "POST",
+              data: JSON.stringify(
+                  {challengeTitle: challengeTitle, challengeDescription:challengeDescription,deadline:deadline}
+              ),
+              contentType: "application/json; charset=utf-8",
+              dataType   : "json",
+              error:function(error){
+                   $("#loading").hide(); //show loading
+                   //$("#avatar").show(); //show loading
+                   $('#btnSubmit').prop('disabled', false);
+              },
+              success: function(data){
+                  console.log(data);
+                  if (data.status=='200') {
+                      showNotification(data.msg);
+                      challengeTitle.val("")
+                      challengeDescription.val("")
+                      deadline.val("")
+                  }else{
+                      showNotification(data.msg);
+                  }
+                  $("#loading").hide(); //show loading
+                  $('#btnSubmit').prop('disabled', false);
+              }
+          });
+      });
+   });
+
+</script>
+{% endblock %}

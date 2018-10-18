@@ -1,11 +1,49 @@
-{% extends "base_user.html" %}
+{% extends "base_admin.html" %}
 {% block content %}
-    {% if challenge %}
-        {% for item in challenge %}
-            item.challengeTitle
-        {% endfor %}
-    {% else %}
-        <h1>No Data Available</h1>
-    {% endif %}
-{% endblock %}
 
+<!-- Page content -->
+<div class="container-fluid mt--7">
+    <div class="row">
+        <div class="col-xl-12 mb-5 mb-xl-0">
+            <div class="card ">
+                <div class=" text-right">
+                    <a href="/addnewchallenge" class="btn btn-md btn-primary mr-2 mt-2 ">+ Add new Challenge</a>
+                </div>
+                {% if challenge %}
+                <div class="card-header bg-transparent">
+                    <div class="row align-items-center">
+                        <h2>Challange List</h2>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive table-bordered">
+                        <table class="table align-items-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Title</th>
+                                <th scope="col">Operations</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% for item in challenge %}
+
+                            <tr>
+                                <td> {{ item.challengeTitle }} <br>{{item.challengeCreatedAt}}</td>
+                                <td><a href="">Edit</a> | <a href="">Delete</a> | <a href="">Datasets</a> | <a href="">Predictions</a></td>
+                            </tr>
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% else %}
+                    <h1 class="text-center mb-4">No Data Available</h1>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}
