@@ -32,11 +32,64 @@
                                 <i class="ni location_pin mr-2"></i>{{user.email}}
                             </div>
                             <div class="h5 mt-4">
+                                <span>Score</span>
                                 <i class="ni business_briefcase-24 mr-2"></i>{{user.score}}
                             </div>
 
                         </div>
+                        <div class="nav-wrapper">
+                        <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link mb-sm-3 mb-md-0 active" id="tabs-icons-text-1-tab" data-toggle="tab" href="#tabs-icons-text-1" role="tab" aria-controls="tabs-icons-text-1" aria-selected="true"><i class="ni ni-bullet-list-67 mr-2"></i>Browse Challenges</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link mb-sm-3 mb-md-0" id="tabs-icons-text-2-tab" data-toggle="tab" href="#tabs-icons-text-2" role="tab" aria-controls="tabs-icons-text-2" aria-selected="false"><i class="ni ni ni-bulb-61 mr-2"></i>My Predictions</a>
+                            </li>
+                        </ul>
                     </div>
+                    <div class="card shadow">
+                        <div class="card-body">
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="tabs-icons-text-1" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
+                                    {% if challenge %}
+                                        <ul class="list-group">
+                                            {% for item in challenge %}
+                                              <li class="list-group-item">
+                                                <a href=""><strong style="font-weight: bold;">{{item.challengeTitle}} </strong></a>
+                                                <article>
+                                                    Published:{{item.challengeCreatedAt}} <br>
+                                                    Deadline:{{item.challengeDeadline}}
+                                                </article>
+                                              </li>
+                                            {% endfor %}
+                                        </ul><br>
+                                        <button type="button" class="btn btn-sm btn-fill btn-block btn-default">Load more...</button>
+                                    {% else %}
+                                        <p>No challenges available right now.</p>
+                                    {% endif %}
+                                </div>
+                                <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel" aria-labelledby="tabs-icons-text-2-tab">
+                                   {% if prediction %}
+                                        <ul class="list-group">
+                                            {% for item in prediction %}
+                                              <li class="list-group-item">
+                                                <a href=""><strong style="font-weight: bold;">{{item.parent.challengeTitle}} </strong></a>
+                                                <article>
+                                                    Submitted:{{item.submittedAt}} <br>
+                                                    Score:{{item.score}}
+                                                </article>
+                                              </li>
+                                            {% endfor %}
+                                        </ul><br>
+                                    {% else %}
+                                        <p>No prediction available right now.</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    
                 </div>
             </div>
             <div class="col-xl-2 mb-5 mb-xl-0"></div>

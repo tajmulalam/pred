@@ -1,0 +1,36 @@
+{% extends "base_user.html" %}
+
+{% block content %}
+<!-- Page content -->
+    <div class="container-fluid mt--7">
+        <div class="col-4 text-right">
+            <a href="#!" class="btn btn-sm btn-primary">< Back</a>
+        </div>
+        <div class="row">
+            <div class="col-xl-2 mb-5 mb-xl-0"></div>
+            <div class="col-xl-8 mb-5 mb-xl-0">
+                <div class="card card-profile shadow">
+                    {% if prediction  %}
+                      <div class="well">
+                            <p>{{prediction.parent.challengeTitle}}</p>
+                            <article>
+                                Submited by: {{prediction.parent.username}}<br>
+                                uploaded at: {{prediction.submittedAt}}
+                            </article>
+                      </div><br>
+                      <article>
+                        Description: <br>
+                        {{prediction.predictionDescription}}
+                      </article>
+                    {% else %}
+                        <p>Somthing Went Wrong</p>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-xl-2 mb-5 mb-xl-0"></div>
+
+        </div>
+
+    </div>
+
+{% endblock %}

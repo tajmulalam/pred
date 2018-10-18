@@ -7,6 +7,7 @@ import json
 from django.http import JsonResponse
 from .models import User
 from .models import Challenge
+from .models import Prediction
 
 
 def index(request):
@@ -79,7 +80,9 @@ def dashboard(request):
     if user is None:
         return render_to_response('login.html')
     else:
-        return render_to_response('dashboard.html', {'user': user})
+        challenge = Challenge.objects.all()
+        prediction = Prediction.objects.all().filter(submittedBy_id=user.id)
+        return render_to_response('dashboard.html', {'user': user,'challenge':challenge,'prediction':prediction})
 
 
 def challengelist(request):
@@ -90,6 +93,13 @@ def challengelist(request):
         challenge = Challenge.objects.all()
         return render_to_response('challengelist.html', {'challenge': challenge})
 
+def myprediction(request,prediction_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        prediction = Prediction.objects.all().filter(id=prediction_id)
+        return render_to_response('prediction.html', {'user': user,'prediction': prediction})
 
 """This is the common method for checking user session"""
 

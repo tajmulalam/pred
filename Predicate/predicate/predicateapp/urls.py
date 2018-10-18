@@ -9,5 +9,6 @@ urlpatterns = [
     url('dashboard', views.dashboard, name='dashboard'),
     url('challengelist', views.challengelist, name='challengelist'),
     # /challenge/12/
-    url(r'^adddataset/(?P<challenge_id>[0-9]+)/$', views.addDataset, name='addDataset')
+    url(r'^adddataset/(?P<challenge_id>[0-9]+)/$', views.addDataset, name='addDataset'),
+    url(r'^myprediction/(?P<prediction_id>[0-9]+)/$', views.myprediction, name='myprediction')
 ]
