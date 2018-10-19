@@ -55,7 +55,7 @@
                                         <ul class="list-group">
                                             {% for item in challenge %}
                                               <li class="list-group-item">
-                                                <a href=""><strong style="font-weight: bold;">{{item.challengeTitle}} </strong></a>
+                                                <a href="/challengeDetails/{{item.id}}/"><strong style="font-weight: bold;">{{item.challengeTitle}} </strong></a>
                                                 <article>
                                                     Published:{{item.challengeCreatedAt}} <br>
                                                     Deadline:{{item.challengeDeadline}}

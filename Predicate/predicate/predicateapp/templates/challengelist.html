@@ -29,9 +29,45 @@
                             {% for item in challenge %}
 
                             <tr>
-                                <td> {{ item.challengeTitle }} <br>{{item.challengeCreatedAt}}</td>
-                                <td><a href="">Edit</a> | <a href="">Delete</a> | <a href="">Datasets</a> | <a href="">Predictions</a></td>
+                                <td> {{ item.challengeTitle }} <br>Created at: {{item.challengeCreatedAt}} <br>Deadline:
+                                    {{item.challengeDeadline}}
+                                </td>
+                                <td>
+                                    <a href="/editchallenge/{{item.id}}">Edit</a> |
+                                    <a href="#" data-toggle="modal"
+                                       data-target="#deleteChallenge_{{item.id}}">Delete</a> |
+                                    <a href="/datasetlist/{{item.id}}">Datasets</a>|
+                                    <a href="">Predictions</a>
+                                </td>
                             </tr>
+                            <!-- Modal -->
+                            <div class="modal fade" id="deleteChallenge_{{item.id}}" tabindex="-1" role="dialog"
+                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Confirm Delete</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div id="errorMsg_{{item.id}}"></div>
+
+                                        <div class="modal-body">
+                                            Are you confirm to delete this challenge?
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close
+                                            </button>
+                                            <button type="button" class="btn btn-primary"
+                                                    onclick="deleteChallenge({{item.id}})" id="btnDelete">Delete
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
                             {% endfor %}
                             </tbody>
                         </table>
@@ -46,4 +82,38 @@
             </div>
         </div>
     </div>
+    {% endblock %}
+    {% block js %}
+    <script type="text/javascript">
+ function showNotification(message,challengeID){
+      var alertHtml="<div class='alert alert-danger'><button type='button' aria-hidden='true' class='close' data-dismiss='alert'><i class='ni ni-fat-remove'></i></button><span><b>"+message+"</b></span></div>";
+      $("#errorMsg_"+challengeID).html(alertHtml);
+  }
+  function deleteChallenge(challengeID){
+    $.ajax({
+        url : "/deleteChallenge",
+        type: "POST",
+        data: JSON.stringify(
+            {challengeID: challengeID}
+        ),
+        contentType: "application/json; charset=utf-8",
+        dataType   : "json",
+        error:function(error){
+          showNotification("Error occurred while processing the request.",challengeID)
+        },
+        success: function(data){
+            console.log(data);
+            if (data.status=='200') {
+                showNotification(data.msg,challengeID);
+                location.reload('/challengelist');
+            }else{
+                showNotification(data.msg,challengeID);
+            }
+
+        }
+    });
+  }
+
+
+    </script>
     {% endblock %}

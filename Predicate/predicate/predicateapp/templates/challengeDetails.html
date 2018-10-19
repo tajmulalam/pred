@@ -1,0 +1,41 @@
+{% extends "base_user.html" %}
+
+{% block content %}
+<!-- Page content -->
+<div class="container-fluid mt--7">
+
+    <div class="row">
+        <div class="col-xl-1 mb-5 mb-xl-0"></div>
+        <div class="col-xl-10 mb-5 mb-xl-0">
+            <div class="card card-profile shadow">
+                <div class="text-left ml-2 mt-2 mb-2">
+                    <a href="/dashboard/" class="btn btn-sm btn-primary">< Back</a>
+                </div>
+                {% if challenge %}
+                <h1 class="title ml-2">{{challenge.challengeTitle}}</h1>
+                <span class="badge badge-pill badge-primary col-2 ml-2 mb-2">Published: {{challenge.challengeCreatedAt}}</span>
+                <span class="badge badge-pill badge-warning col-2 ml-2">Deadline: {{challenge.challengeDeadline}}</span>
+<!--
+                <div class="ml-2 col-md-5 bg-dark text-white">
+                    <div class="card-body">
+                        Published at: {{challenge.challengeCreatedAt}}<br>
+                        Deadline: {{challenge.challengeDeadline}}
+                    </div>
+                </div>-->
+                <br>
+                <article class="ml-2 mb-4">
+                    <strong class="mb-2">Description:</strong> <br>
+                    {{challenge.challengeDescription}}
+                </article>
+                {% else %}
+                <h1 class="text-center">Something Went Wrong</h1>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-xl-1 mb-5 mb-xl-0"></div>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from .utils import Utils
@@ -8,7 +8,10 @@ from django.http import JsonResponse
 from .models import User
 from .models import Challenge
 from .models import Prediction
+from .models import Dataset
 from datetime import *
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponseRedirect
 
 
 def index(request):
@@ -17,7 +20,7 @@ def index(request):
         return render_to_response('index.html')
     else:
         if user.userType == "General":
-            return render_to_response('dashboard.html')
+            return redirect('/dashboard/')
         else:
             return render_to_response('challengelist.html')
 
@@ -79,8 +82,57 @@ def logout(request):
     return render_to_response("login.html")
 
 
-def addDataset(request, challenge_id):
-    return HttpResponse("<h1>challenge id " + str(challenge_id) + "</h1>")
+@csrf_exempt
+def adddataset(request, challenge_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            challenge = Challenge.objects.get(id=challenge_id)
+            return render_to_response('adddataset.html', {'user': user, 'challenge': challenge})
+        elif request.method == 'POST':
+            myfile = request.FILES['files']
+            fs = FileSystemStorage()
+            filename = fs.save(myfile.name, myfile)
+            uploaded_file_url = fs.url(filename)
+            dataset = Dataset(challenge_id=challenge_id, fileCaption=myfile.name, filePath=uploaded_file_url)
+            dataset.save()
+            if dataset.pk:
+                challenge = Challenge.objects.get(id=challenge_id)
+                return redirect('/datasetlist/' + str(challenge.id))
+            return render_to_response('addnewchallenge.html', {'user': user, 'challenge': None})
+        else:
+            return render_to_response('addnewchallenge.html', {'user': user, 'challenge': None})
+
+
+def datasetlist(request, challenge_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            challenge = Challenge.objects.get(id=challenge_id)
+            dataset = Dataset.objects.all().filter(challenge_id=challenge_id).order_by('-id')
+            return render_to_response('datasetlist.html', {'user': user, 'dataset': dataset, 'challenge': challenge})
+        else:
+            return render_to_response('login.html')
+
+
+@csrf_exempt
+def deletedataset(request, dataset_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            dataset = Dataset.objects.get(id=dataset_id)
+            challenge_id = dataset.challenge_id
+            challenge = Challenge.objects.get(id=challenge_id)
+            dataset.delete()
+            return redirect('/datasetlist/' + str(challenge.id))
+        else:
+            return render_to_response('login.html')
 
 
 def dashboard(request):
@@ -132,6 +184,65 @@ def addnewchallenge(request):
             return render_to_response('login.html')
 
 
+@csrf_exempt
+def editchallenge(request, challenge_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            challengeDetect = None
+            try:
+                challengeDetect = Challenge.objects.get(id=challenge_id)
+            except Challenge.DoesNotExist:
+                challengeDetect = None
+            return render_to_response('editchallenge.html', {'user': user, 'challenge': challengeDetect})
+        else:
+            return render_to_response('login.html')
+
+
+@csrf_exempt
+def editchallengeData(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        print(data)
+        result = validateChallenge(data)
+        if result[1]:
+            challenge = Challenge.objects.get(id=data['challengeID'])
+            challenge.challengeTitle = data['challengeTitle']
+            challenge.challengeDescription = data['challengeDescription']
+            challenge.challengeDeadline = data['deadline']
+            challenge.save()
+            if challenge.pk:
+                return HttpResponse(json.dumps({"msg": result[0], "status": 200}),
+                                    content_type='application/json')
+            else:
+                return HttpResponse(json.dumps({"msg": 'Error while processing', "status": 500}),
+                                    content_type='application/json')
+        else:
+            return HttpResponse(json.dumps({"msg": result[0], "status": 500}),
+                                content_type='application/json')
+    else:
+        return render_to_response('login.html')
+
+
+@csrf_exempt
+def deleteChallenge(request):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'POST':
+            data = json.loads(request.body)
+            print(data)
+            challenge = Challenge.objects.get(id=data['challengeID'])
+            challenge.delete()
+            return HttpResponse(json.dumps({"msg": "Delete Successful", "status": 200}),
+                                content_type='application/json')
+        else:
+            return render_to_response('login.html')
+
+
 def myprediction(request, prediction_id):
     user = checkUserAliveInSession(request)
     if user is None:
@@ -139,6 +250,15 @@ def myprediction(request, prediction_id):
     else:
         prediction = Prediction.objects.all().filter(id=prediction_id)
         return render_to_response('prediction.html', {'user': user, 'prediction': prediction})
+
+
+def challengeDetails(request, challenge_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        challenge = Challenge.objects.get(id=challenge_id)
+        return render_to_response('challengeDetails.html', {'user': user, 'challenge': challenge})
 
 
 """This is the common method for checking user session"""

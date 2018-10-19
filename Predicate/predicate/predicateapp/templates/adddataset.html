@@ -1,0 +1,57 @@
+{% extends "base_admin.html" %}
+{% block content %}
+<!-- Page content -->
+<div class="container-fluid mt--7">
+    <div class="row">
+        <div class="col-xl-12 mb-5 mb-xl-0">
+            <div class="card">
+                <form role="form " action="/adddataset/{{challenge.id}}/" method="post" enctype="multipart/form-data">
+                    <div id="errorMsg"></div>
+                    <div class="row ">
+                        <label for="header" class="col-md-1 mt-2 ml-2">
+                            <a href="/datasetlist/{{challenge.id}}"
+                               class="btn btn-fill btn-sm btn-danger"> < Back</a>
+                        </label>
+                        <div class="col-md-8 mt-4">
+                            <div class="form-group">
+                                <h3 class="mt-2 ml-2" id="header">Add new dataset</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="challengeTitle" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="text" class="form-control" id="challengeTitle"
+                                       placeholder="Enter title" value="{{challenge.challengeTitle}}" disabled>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="files" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="file" name="files" class="form-control " required id="files"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <label for="btnSubmit" class="col-md-1"></label>
+                        <div class="col-md-8">
+                            <div class="form-group">
+                                <input type="submit" class="btn btn-primary" id="btnSubmit" value="Save"/>
+                                <img src="/static/assets/img/loading.gif" width="80" style="display: none;"
+                                     id="loading">
+
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
