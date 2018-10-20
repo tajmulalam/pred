@@ -12,6 +12,8 @@ from .models import Dataset
 from datetime import *
 from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
+import time
+from datetime import date
 
 
 def index(request):
@@ -74,6 +76,14 @@ def login(request):
         return render_to_response('login.html')
 
 
+def aboutus(request):
+    return render_to_response("aboutus.html")
+
+
+def contactus(request):
+    return render_to_response("contactus.html")
+
+
 def logout(request):
     try:
         del request.session['user']
@@ -94,9 +104,12 @@ def adddataset(request, challenge_id):
         elif request.method == 'POST':
             myfile = request.FILES['files']
             fs = FileSystemStorage()
-            filename = fs.save(myfile.name, myfile)
+            ext = myfile.name.split('.')
+            millis = int(round(time.time() * 1000))
+            unique_filename = str(millis) + "." + ext[1]
+            filename = fs.save(unique_filename, myfile)
             uploaded_file_url = fs.url(filename)
-            dataset = Dataset(challenge_id=challenge_id, fileCaption=myfile.name, filePath=uploaded_file_url)
+            dataset = Dataset(challenge_id=challenge_id, fileCaption=unique_filename, filePath=uploaded_file_url)
             dataset.save()
             if dataset.pk:
                 challenge = Challenge.objects.get(id=challenge_id)
@@ -129,6 +142,8 @@ def deletedataset(request, dataset_id):
             dataset = Dataset.objects.get(id=dataset_id)
             challenge_id = dataset.challenge_id
             challenge = Challenge.objects.get(id=challenge_id)
+            fs = FileSystemStorage()
+            fs.delete(dataset.fileCaption)
             dataset.delete()
             return redirect('/datasetlist/' + str(challenge.id))
         else:
@@ -140,9 +155,50 @@ def dashboard(request):
     if user is None:
         return render_to_response('login.html')
     else:
-        challenge = Challenge.objects.all()
+        todaydd = date.today()
+        challenge = Challenge.objects.all().filter(challengeDeadline__gte=todaydd)
         prediction = Prediction.objects.all().filter(submittedBy_id=user.id)
         return render_to_response('dashboard.html', {'user': user, 'challenge': challenge, 'prediction': prediction})
+
+
+def predictionlist(request, challenge_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            prediction = Prediction.objects.all().filter(challenge_id=challenge_id)
+            return render_to_response('predictionlist.html', {'user': user, 'predictions': prediction})
+        else:
+            return render_to_response('login.html')
+
+
+@csrf_exempt
+def updatescore(request, prediction_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'POST':
+            score = request.POST['score']
+            prediction = Prediction.objects.get(id=prediction_id)
+            prediction.score = score.strip()
+            prediction.scoreUpdatedAt = str(date.today())
+            prediction.save()
+            userForUpdateScore = User.objects.get(id=prediction.submittedBy_id)
+            allScoresOfPred = Prediction.objects.all().filter(submittedBy_id=prediction.submittedBy_id)
+            previousScore = 0;
+            if len(allScoresOfPred) > 0:
+                for i in allScoresOfPred:
+                    previousScore += int(i.score)
+                userForUpdateScore.score = previousScore
+                userForUpdateScore.save()
+            else:
+                userForUpdateScore.score = prediction.score
+                userForUpdateScore.save()
+            return redirect('/predictionlist/' + str(prediction.challenge_id))
+        else:
+            return render_to_response('login.html')
 
 
 def challengelist(request):
@@ -248,7 +304,8 @@ def myprediction(request, prediction_id):
     if user is None:
         return render_to_response('login.html')
     else:
-        prediction = Prediction.objects.all().filter(id=prediction_id)
+        prediction = Prediction.objects.get(id=prediction_id)
+        print("called here....")
         return render_to_response('prediction.html', {'user': user, 'prediction': prediction})
 
 
@@ -258,7 +315,52 @@ def challengeDetails(request, challenge_id):
         return render_to_response('login.html')
     else:
         challenge = Challenge.objects.get(id=challenge_id)
-        return render_to_response('challengeDetails.html', {'user': user, 'challenge': challenge})
+        datasets = Dataset.objects.all().filter(challenge_id=challenge_id)
+        prediction = Prediction.objects.all().filter(challenge_id=challenge_id)
+        canSubmitPrediction = False
+        if len(prediction.filter(submittedBy_id=user.id)) > 0:
+            canSubmitPrediction = False
+        else:
+            canSubmitPrediction = True
+        print(canSubmitPrediction)
+        return render_to_response('challengeDetails.html',
+                                  {'user': user, 'canSubmitPrediction': canSubmitPrediction, 'challenge': challenge,
+                                   'datasets': datasets,
+                                   'prediction': prediction})
+
+
+@csrf_exempt
+def submitprediction(request, challenge_id):
+    user = checkUserAliveInSession(request)
+    if user is None:
+        return render_to_response('login.html')
+    else:
+        if request.method == 'GET':
+            challenge = Challenge.objects.get(id=challenge_id)
+            return render_to_response('submitprediction.html', {'user': user, 'challenge': challenge})
+        elif request.method == 'POST':
+            data = json.loads(request.body)
+            print(data)
+            result = validatePrediction(data)
+            if result[1]:
+                prediction = Prediction(
+                    challenge_id=challenge_id,
+                    submittedBy_id=user.id,
+                    predictionDescription=data['predictionDescription'],
+                    score="0"
+                )
+                prediction.save()
+                if prediction.pk:
+                    return HttpResponse(json.dumps({"msg": result[0], "status": 200}),
+                                        content_type='application/json')
+                else:
+                    return HttpResponse(json.dumps({"msg": 'Error while processing', "status": 500}),
+                                        content_type='application/json')
+            else:
+                return HttpResponse(json.dumps({"msg": result[0], "status": 500}),
+                                    content_type='application/json')
+        else:
+            return render_to_response('login.html')
 
 
 """This is the common method for checking user session"""
@@ -378,6 +480,27 @@ def validateChallenge(data):
 
     if isTitleOK and isDescription and isDateOK:
         result.append("Challenge Created and publish Successful")
+        result.append(True)
+        return result
+    else:
+        result.append(errorMsg)
+        result.append(False)
+        print(errorMsg)
+        return result
+
+
+def validatePrediction(data):
+    errorMsg = ""
+    result = []
+    isPredictonOK = False
+    if isBlank(data['predictionDescription']):
+        isPredictonOK = False
+        errorMsg += "Prediction description is required" + "</br>"
+    else:
+        isPredictonOK = True
+
+    if isPredictonOK:
+        result.append("Your prediction submitted successfully")
         result.append(True)
         return result
     else:

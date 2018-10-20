@@ -9,32 +9,100 @@
         <div class="col-xl-10 mb-5 mb-xl-0">
             <div class="card card-profile shadow">
                 <div class="text-left ml-2 mt-2 mb-2">
-                    <a href="/dashboard/" class="btn btn-sm btn-primary">< Back</a>
+                    <a href="/dashboard/" class="btn btn-sm btn-danger">< Back</a>
                 </div>
                 {% if challenge %}
                 <h1 class="title ml-2">{{challenge.challengeTitle}}</h1>
                 <span class="badge badge-pill badge-primary col-2 ml-2 mb-2">Published: {{challenge.challengeCreatedAt}}</span>
                 <span class="badge badge-pill badge-warning col-2 ml-2">Deadline: {{challenge.challengeDeadline}}</span>
-<!--
-                <div class="ml-2 col-md-5 bg-dark text-white">
-                    <div class="card-body">
-                        Published at: {{challenge.challengeCreatedAt}}<br>
-                        Deadline: {{challenge.challengeDeadline}}
-                    </div>
-                </div>-->
                 <br>
-                <article class="ml-2 mb-4">
-                    <strong class="mb-2">Description:</strong> <br>
-                    {{challenge.challengeDescription}}
-                </article>
-                {% else %}
-                <h1 class="text-center">Something Went Wrong</h1>
-                {% endif %}
-            </div>
-        </div>
-        <div class="col-xl-1 mb-5 mb-xl-0"></div>
+                <div class="nav-wrapper ml-2 mr-2">
+                    <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0 active" id="tabs-icons-text-1-tab" data-toggle="tab"
+                               href="#tabs-icons-text-1" role="tab" aria-controls="tabs-icons-text-1"
+                               aria-selected="true"><i class="ni ni-bullet-list-67 mr-2"></i>Challenge Description</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0" id="tabs-icons-text-2-tab" data-toggle="tab"
+                               href="#tabs-icons-text-2" role="tab" aria-controls="tabs-icons-text-2"
+                               aria-selected="false"><i class="ni ni-archive-2 mr-2"></i>Datasets</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0" id="tabs-icons-text-3-tab" data-toggle="tab"
+                               href="#tabs-icons-text-3" role="tab" aria-controls="tabs-icons-text-3"
+                               aria-selected="false"><i class="ni ni ni-bulb-61 mr-2"></i>Predictions</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card shadow">
+                    <div class="card-body">
+                        <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="tabs-icons-text-1" role="tabpanel"
+                                 aria-labelledby="tabs-icons-text-1-tab">
+                                <br>
+                                <article class="ml-2 mb-4">
+                                    <strong class="mb-2">Description:</strong> <br>
+                                    {{challenge.challengeDescription}}
+                                </article>
+                                {% if canSubmitPrediction %}
+                                <div class="text-center">
+                                    <a href="/submitprediction/{{challenge.id}}" class="btn btn-md btn-success">Submit
+                                        your Prediction</a>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel"
+                                 aria-labelledby="tabs-icons-text-2-tab">
+                                <ul class="list-group">
 
+                                    {% if datasets %}
+                                    {% for dataset in datasets%}
+                                    <li class="list-group-item">
+                                        <span class="ni ni-archive-2"></span> <a href="{{dataset.filePath}}">
+                                        File {{ forloop.counter}}</a>
+                                    </li>
+                                    {% endfor %}
+                                    {% else %}
+                                    <h2>No dataset available</h2>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="tab-pane fade" id="tabs-icons-text-3" role="tabpanel"
+                                 aria-labelledby="tabs-icons-text-3-tab">
+                                <ul class="list-group">
+
+                                    {% if prediction %}
+                                    {% load app_filters %}
+                                    {% for pre in prediction %}
+                                    <li class="list-group-item">
+                                        <strong>{{ pre.submittedBy_id|get_user_info }}</strong><br>
+                                        {{pre.submittedAt}}
+                                        {% if pre.score == "0" %}
+                                        <h3 class="text-right ">Score: Pending</h3>
+                                        {% else %}
+                                        <h3 class="text-right ">Score: {{pre.score}}</h3>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                    {% else %}
+                                    <h2>No predictions are available right now</h2>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <h1 class="text-center">Something Went Wrong</h1>
+            {% endif %}
+        </div>
     </div>
+    <div class="col-xl-1 mb-5 mb-xl-0"></div>
+
+</div>
 
 </div>
 

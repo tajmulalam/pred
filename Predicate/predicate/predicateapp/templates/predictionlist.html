@@ -1,0 +1,164 @@
+{% extends "base_admin.html" %}
+{% block content %}
+
+<!-- Page content -->
+<div class="container-fluid mt--7">
+    <div class="row">
+        <div class="col-xl-12 mb-5 mb-xl-0">
+            <div class="card ">
+                <a href="/challengelist" class=" text-left btn btn-md btn-danger ml-2 mt-2 col-md-1  ">< Back</a>
+
+                {% if predictions %}
+                <div class="card-header bg-transparent">
+                    <div class="row align-items-center">
+                        <h2>Prediction List</h2>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive table-bordered">
+                        <table class="table align-items-center">
+                            <thead class="thead-light">
+                            <tr>
+                                <th scope="col">Predictions</th>
+
+                                <th scope="col">Operations</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% load app_filters %}
+                            {% for item in predictions %}
+                            <tr>
+                                <td>Submitted by: {{ item.submittedBy_id|get_user_name }}
+                                    <br>Submitted at: {{item.submittedAt}}
+                                    {% if item.score == "0" %}
+                                    <br>Score: Pending
+                                    {% else %}
+                                    <br>Score: {{item.score}}
+                                    <br>Score updated at: {{item.scoreUpdatedAt}}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <a href="#" data-toggle="modal"
+                                       data-target="#updateScore_{{item.id}}">Update Score</a>|
+                                    <a href="/myprediction/{{item.id}}/">View Details</a>
+                                </td>
+                            </tr>
+                            <!-- Modal -->
+                            <div class="modal fade" id="updateScore_{{item.id}}" tabindex="-1" role="dialog"
+                                 aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="exampleModalLabel">Update score</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form role="form " action="/updatescore/{{item.id}}/" method="post">
+                                                <div class="row ">
+                                                    <label for="score" class="col-md-1"></label>
+                                                    <div class="col-md-8">
+                                                        <div class="form-group ">
+                                                            <!--  <input type="hidden" value="{{item.id}}"
+                                                                     id="prediction_id"/>-->
+                                                            <input type="number" min="0" max="999" name="score" required
+                                                                   class="form-control "
+                                                                   required id="score" placeholder="Enter score"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row ">
+                                                    <label for="score" class="col-md-1"></label>
+                                                    <div class="col-md-8">
+                                                        <div class="form-group ">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                    data-dismiss="modal">Close
+                                                            </button>
+                                                            <input type="submit" class="btn btn-primary" id="btnSubmit"
+                                                                   value="Save"/>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% else %}
+                    <h1 class="text-center mb-4">No Data Available</h1>
+                    {% endif %}
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endblock %}
+    {% block js %}
+    <script type="text/javascript">
+ function showNotification(message,challengeID){
+      var alertHtml="<div class='alert alert-danger'><button type='button' aria-hidden='true' class='close' data-dismiss='alert'><i class='ni ni-fat-remove'></i></button><span><b>"+message+"</b></span></div>";
+      $("#errorMsg_"+challengeID).html(alertHtml);
+  }
+  function deleteChallenge(challengeID){
+    $.ajax({
+        url : "/deleteChallenge",
+        type: "POST",
+        data: JSON.stringify(
+            {challengeID: challengeID}
+        ),
+        contentType: "application/json; charset=utf-8",
+        dataType   : "json",
+        error:function(error){
+          showNotification("Error occurred while processing the request.",challengeID)
+        },
+        success: function(data){
+            console.log(data);
+            if (data.status=='200') {
+                showNotification(data.msg,challengeID);
+                location.reload('/challengelist');
+            }else{
+                showNotification(data.msg,challengeID);
+            }
+
+        }
+    });
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+    {% endblock %}

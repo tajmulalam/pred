@@ -33,10 +33,10 @@
                             </tr>
                             </thead>
                             <tbody>
-                            {% for item in dataset %}
+                            {% for  item in dataset %}
 
                             <tr>
-                                <td><a href="{{ item.filePath }}">{{ item.fileCaption }}</a> <br>Created at: {{item.uploadedAt}}
+                                <td><a href="{{ item.filePath }}">File  {{ forloop.counter }}</a> <br>Created at: {{item.uploadedAt}}
                                 </td>
                                 <td>
                                     <a href="#" data-toggle="modal"
@@ -63,7 +63,7 @@
                                             </button>
                                             <a href="/deletedataset/{{item.id}}" class="btn btn-primary">Delete</a>
                                             <!--<button type="button" class="btn btn-primary"-->
-                                                    <!--onclick="deleteDataset({{item.id}})" id="btnDelete">Delete-->
+                                            <!--onclick="deleteDataset({{item.id}})" id="btnDelete">Delete-->
                                             <!--</button>-->
                                         </div>
                                     </div>
@@ -116,6 +116,7 @@
         }
     });
   }
+
 
 
 

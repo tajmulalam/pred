@@ -2,35 +2,52 @@
 
 {% block content %}
 <!-- Page content -->
-    <div class="container-fluid mt--7">
-        <div class="col-4 text-right">
-            <a href="#!" class="btn btn-sm btn-primary">< Back</a>
-        </div>
-        <div class="row">
-            <div class="col-xl-2 mb-5 mb-xl-0"></div>
-            <div class="col-xl-8 mb-5 mb-xl-0">
-                <div class="card card-profile shadow">
-                    {% if prediction  %}
-                      <div class="well">
-                            <p>{{prediction.parent.challengeTitle}}</p>
-                            <article>
-                                Submited by: {{prediction.parent.username}}<br>
-                                uploaded at: {{prediction.submittedAt}}
-                            </article>
-                      </div><br>
-                      <article>
-                        Description: <br>
-                        {{prediction.predictionDescription}}
-                      </article>
+<div class="container-fluid mt--7">
+
+    <div class="row">
+        <div class="col-xl-1 mb-5 mb-xl-0"></div>
+        <div class="col-xl-10 mb-5 mb-xl-0">
+            <div class="card card-profile shadow">
+                <div class="text-left ml-2 mt-2 mb-2">
+                    {% if user.userType == "Admin" %}
+                    <a href="/challengelist/" class="btn btn-sm btn-danger">< Back</a>
                     {% else %}
-                        <p>Somthing Went Wrong</p>
+                    <a href="/dashboard/" class="btn btn-sm btn-danger">< Back</a>
                     {% endif %}
                 </div>
+                {% if prediction %}
+                {% load app_filters %}
+
+                <h1 class="title ml-4">{{ prediction.challenge_id | get_challenge_info }}</h1>
+                <div class="col-md-5 ml-2 mb-2">
+                    <span class="badge badge-pill badge-primary">Submitted By: {{ prediction.submittedBy_id|get_user_info }}</span>
+                    <span class="badge badge-pill badge-warning mb-1">Submitted At: {{prediction.submittedAt}}</span>
+                    <span class="badge badge-pill badge-danger">Deadline:  {{ prediction.challenge_id | get_challenge_deadline }}</span>
+                </div>
+                <div class="bg-success col-4 ml-4 mb-2">
+                    {% if prediction.score == "0" %}
+                    <h3 class="text-white mt-1">Score: Pending</h3>
+                    {% else %}
+                    <h3 class="text-white mt-1">Score: {{prediction.score}}</h3>
+                    {% endif %}
+
+                </div>
+                <article class="ml-4 mb-4 mr-2">
+                    <strong class="mb-3 text-justify">Description:</strong> <br>
+                    {{prediction.predictionDescription}}
+                </article>
+                <br>
             </div>
-            <div class="col-xl-2 mb-5 mb-xl-0"></div>
 
+            {% else %}
+            <h1 class="text-center">Something Went Wrong</h1>
+            {% endif %}
         </div>
-
     </div>
+    <div class="col-xl-1 mb-5 mb-xl-0"></div>
+
+</div>
+
+</div>
 
 {% endblock %}
