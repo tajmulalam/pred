@@ -69,15 +69,15 @@ def login(request):
         if validUser[0] == '200':
             request.session['user'] = validUser[1].id
             return HttpResponse(json.dumps({"status": validUser[0], "userID": validUser[1].id}),
-                            content_type='application/json')
+                                content_type='application/json')
         elif validUser[0] == '201':
             request.session['user'] = validUser[1].id
             return HttpResponse(json.dumps({"status": validUser[0], "userID": validUser[1].id}),
-                            content_type='application/json')
+                                content_type='application/json')
         else:
             return HttpResponse(json.dumps({"status": validUser[0], "userID": None}),
-                            content_type='application/json')
-        
+                                content_type='application/json')
+
     else:
         return render_to_response('login.html')
 
@@ -162,7 +162,7 @@ def dashboard(request):
         return render_to_response('login.html')
     else:
         todaydd = date.today()
-        challenge = Challenge.objects.all().filter(challengeDeadline__gte=todaydd)
+        challenge = Challenge.objects.all().filter(challengeDeadline__gte=todaydd).order_by('-id')
         prediction = Prediction.objects.all().filter(submittedBy_id=user.id)
         return render_to_response('dashboard.html', {'user': user, 'challenge': challenge, 'prediction': prediction})
 

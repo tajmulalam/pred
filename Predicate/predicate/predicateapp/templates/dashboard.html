@@ -1,6 +1,24 @@
 {% extends "base_user.html" %}
 
 {% block content %}
+<style>
+::-webkit-scrollbar {
+    width: 15px;
+    background:lightgray;
+}
+
+::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,255,1);
+    border-radius: 15px;
+}
+
+::-webkit-scrollbar-thumb {
+    border-radius: 15px;
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+    background:#5e72e4;
+}
+
+</style>
 <!-- Page content -->
 <div class="container-fluid mt--7">
     <div class="row">
@@ -11,7 +29,8 @@
                     <div class="col-lg-3 order-lg-2">
                         <div class="card-profile-image">
                             <a href="#">
-                                <img src="/static/assets/img/theme/user.png" class="rounded-circle" style="border:2px grey solid; background-color:white;">
+                                <img src="/static/assets/img/theme/user.png" class="rounded-circle"
+                                     style="border:2px grey solid; background-color:white;">
                             </a>
                         </div>
                     </div>
@@ -55,7 +74,8 @@
                     <div class="card shadow">
                         <div class="card-body">
                             <div class="tab-content" id="myTabContent">
-                                <div class="tab-pane fade show active" id="tabs-icons-text-1" role="tabpanel"
+                                <div class="tab-pane fade show active" style="height: 300px;
+                                overflow-y: auto;" id="tabs-icons-text-1" role="tabpanel"
                                      aria-labelledby="tabs-icons-text-1-tab">
                                     {% if challenge %}
                                     <ul class="list-group">
@@ -77,15 +97,19 @@
                                     <p>No challenges available right now.</p>
                                     {% endif %}
                                 </div>
-                                <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel"
+                                <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel" style="height: 300px;
+                                overflow-y: auto;"
                                      aria-labelledby="tabs-icons-text-2-tab">
                                     {% if prediction %}
                                     <ul class="list-group">
                                         {% load app_filters %}
                                         {% for item in prediction %}
                                         <li class="list-group-item">
-                                            <a href="/myprediction/{{item.id}}/"><strong
-                                                    style="font-weight: bold;">{{ item.challenge_id | get_challenge_info }}</strong></a>
+                                            <a href="/myprediction/{{item.id}}/">
+                                                <strong style="font-weight: bold;">
+                                                    {{ item.challenge_id | get_challenge_info }}
+                                                </strong>
+                                            </a>
                                             <article>
                                                 Submitted: {{item.submittedAt}} <br>
                                                 Score: {{item.score}}
