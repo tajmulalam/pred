@@ -1,6 +1,7 @@
 from django.db import models
 import datetime
 
+
 class User(models.Model):
     firstName = models.TextField()
     lastName = models.TextField()
@@ -12,6 +13,9 @@ class User(models.Model):
     score = models.TextField(default='0')
     verificationCode = models.TextField()
     isVerified = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.firstName + " " + self.lastName
 
 
 class Challenge(models.Model):
@@ -38,4 +42,3 @@ class Prediction(models.Model):
     score = models.TextField(null=True)
     scoreUpdatedAt = models.TextField(null=True)
     status = models.IntegerField(default=1)
-
