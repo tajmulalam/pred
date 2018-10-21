@@ -14,6 +14,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import HttpResponseRedirect
 import time
 from datetime import date
+from django.core.mail import EmailMessage
 
 
 def index(request):
@@ -68,6 +69,8 @@ def login(request):
         validUser = utils.checkCredentials(data['username'], data['password'])
         if validUser[0] == '200':
             request.session['user'] = validUser[1].id
+            # email = EmailMessage(validUser[1].username, 'test msg', to=[validUser[1].email])
+            # email.send()
             return HttpResponse(json.dumps({"status": validUser[0], "userID": validUser[1].id}),
                                 content_type='application/json')
         elif validUser[0] == '201':
