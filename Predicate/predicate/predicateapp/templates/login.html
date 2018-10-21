@@ -56,15 +56,18 @@
                 </div>
             </div>
             <div class="row mt-3">
-                <div class="col-6">
-                    <a href="#" class="text-light">
+                <div class="col-4">
+                    <!-- <a href="#" class="text-light">
                         <small>Forgot password?</small>
-                    </a>
+                    </a> -->
                 </div>
-                <div class="col-6 text-right">
+                <div class="col-4">
                     <a href="/register" class="text-light">
                         <small>Create new account</small>
                     </a>
+                </div>
+                <div class="col-4 text-right">
+                  
                 </div>
             </div>
         </div>
@@ -78,21 +81,29 @@
             function validateField(username,password){
                 var userNameOK=false;
                 var passwordOK=false;
+                var errorMsg="";
+                var result=[]
                 if (username.length>0) {
                     userNameOK=true;
                 }else{
-                    showNotification("Username is required")
+                   //showNotification("Username is required")
+                    errorMsg+="Username is required <br>";
                 }
                 if (password.length>0) {
                     passwordOK=true;
                 }else{
-                    showNotification("Password is required")
+                    //showNotification("Password is required")
+                    errorMsg+="Password is required";
 
                 }
                 if (userNameOK && passwordOK) {
-                    return true;
+                    result[0]=true;
+                    result[1]=errorMsg;
+                    return result;
                 }else {
-                    return false;
+                    result[0]=false;
+                    result[1]=errorMsg;
+                    return result;
                 }
             }
             function showNotification(message){
@@ -103,7 +114,8 @@
                 event.preventDefault();
                 var username=$("#username").val();
                 var password=$("#password").val();
-                if(validateField(username,password)==true){
+                result=validateField(username,password);
+                if(result[0]){
                     $("#loading").show(); //show loading
                     //$("#avatar").hide(); //show loading
                     $('#btnSubmit').prop('disabled', true);
@@ -131,7 +143,6 @@
                                 $("#errorMsg").html(alertHtml);*/ 
                                 if (data.status=='500') {
                                     showNotification("Incorrect credentials! Try again...");
-
                                 }else if(data.status=='201'){
                                     location.replace('/challengelist');
                                 }else if(data.status=='250'){
@@ -147,6 +158,8 @@
                             
                         }
                     });
+                }else{
+                    showNotification(result[1])
                 }
             });
         });

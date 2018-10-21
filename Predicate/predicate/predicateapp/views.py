@@ -68,10 +68,16 @@ def login(request):
         validUser = utils.checkCredentials(data['username'], data['password'])
         if validUser[0] == '200':
             request.session['user'] = validUser[1].id
+            return HttpResponse(json.dumps({"status": validUser[0], "userID": validUser[1].id}),
+                            content_type='application/json')
         elif validUser[0] == '201':
             request.session['user'] = validUser[1].id
-        return HttpResponse(json.dumps({"status": validUser[0], "userID": validUser[1].id}),
+            return HttpResponse(json.dumps({"status": validUser[0], "userID": validUser[1].id}),
                             content_type='application/json')
+        else:
+            return HttpResponse(json.dumps({"status": validUser[0], "userID": None}),
+                            content_type='application/json')
+        
     else:
         return render_to_response('login.html')
 

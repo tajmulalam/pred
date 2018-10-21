@@ -29,7 +29,8 @@
                             {{user.firstName}} {{user.lastName}}
                         </h3>
                         <div class="h5 font-weight-300">
-                            <i class="ni location_pin mr-2"></i>{{user.email}}
+                            <i class="ni location_pin mr-2"></i>{{user.email}} <br>
+                            <i class="ni location_pin mr-2"></i>Username: {{user.username}}
                         </div>
                         <div class="h5 mt-4">
                             <span>Score</span>
@@ -68,10 +69,10 @@
                                         </li>
                                         {% endfor %}
                                     </ul>
-                                    <br>
+                                    <!-- <br>
                                     <button type="button" class="btn btn-sm btn-fill btn-block btn-default">Load
                                         more...
-                                    </button>
+                                    </button> -->
                                     {% else %}
                                     <p>No challenges available right now.</p>
                                     {% endif %}

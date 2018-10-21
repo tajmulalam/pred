@@ -45,11 +45,15 @@
                                     <strong class="mb-2">Description:</strong> <br>
                                     {{challenge.challengeDescription}}
                                 </article>
-                                {% if canSubmitPrediction %}
-                                <div class="text-center">
-                                    <a href="/submitprediction/{{challenge.id}}" class="btn btn-md btn-success">Submit
-                                        your Prediction</a>
-                                </div>
+                                {% if canSubmitPrediction == True %}
+                                    <div class="text-center">
+                                        <a href="/submitprediction/{{challenge.id}}" class="btn btn-md btn-success">Submit
+                                            your Prediction</a>
+                                    </div>
+                                {% elif canSubmitPrediction == False %}
+                                    <div class="text-center">
+                                        <button type="button" disabled="disabled" class="btn btn-md btn-success">Prediction Submitted</button>
+                                    </div>
                                 {% endif %}
                             </div>
                             <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel"
