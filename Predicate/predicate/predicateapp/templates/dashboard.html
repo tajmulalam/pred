@@ -82,6 +82,7 @@
                                         {% for item in challenge %}
                                         <li class="list-group-item">
                                             <a href="/challengeDetails/{{item.id}}/"><strong style="font-weight: bold;">{{item.challengeTitle}} </strong></a>
+                                            <br><br><code style="color: black;">{{item.challengeDescription}}</code><br><br>
                                             <article>
                                                 Published:{{item.challengeCreatedAt}} <br>
                                                 Deadline:{{item.challengeDeadline}}

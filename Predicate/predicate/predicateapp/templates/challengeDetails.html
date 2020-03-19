@@ -60,8 +60,8 @@
                                  aria-labelledby="tabs-icons-text-1-tab">
                                 <br>
                                 <article class="ml-2 mb-4">
-                                    <strong class="mb-2">Description:</strong> <br>
-                                    {{challenge.challengeDescription}}
+                                    <!-- <strong class="mb-2">Description:</strong> <br> -->
+                                    <code style="color: black;">{{challenge.challengeDescription | safe | linebreaks}}</code>
                                 </article>
                                 {% if canSubmitPrediction == True %}
                                     <div class="text-center">
@@ -101,7 +101,8 @@
                                     {% for pre in prediction %}
                                     <li class="list-group-item">
                                         <strong>{{ pre.submittedBy_id|get_user_info }}</strong><br>
-                                        {{pre.submittedAt}}
+                                        {{pre.submittedAt}} <br>  <br> 
+                                        <code style="color: black;">{{pre.predictionDescription | safe | linebreaks}}</code>
                                         {% if pre.score == "0" %}
                                         <h3 class="text-right ">Score: Pending</h3>
                                         {% else %}
